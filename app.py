@@ -7,15 +7,12 @@ from sqlalchemy.orm import sessionmaker
 from models import Base, Post, User
 import configparser
 from flask_login import current_user
-
-
 import time
+from flask import flash
+
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
-
-# Base.metadata.drop_all(engine)
-# Base.metadata.create_all(engine)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -44,8 +41,8 @@ def load_user(user_id):
 
 @app.route('/', methods=['GET'])
 def home():
-    
-    return 'Welcome to Reddit Crawler API'
+    print('Welcome to Reddit Crawler API')
+    return redirect(url_for('login'))
     
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -58,18 +55,17 @@ def login():
 
         if user and user.check_password(password):
             login_user(user)
-            return redirect(url_for('home'))
+            return redirect(url_for('crawl_posts'))
 
-        return 'Invalid username or password'
-
+        flash('Invalid username or password')  # Flash a message to the user
+        return redirect(url_for('login')) 
     return render_template('login.html')
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('home'))
-
+    return redirect(url_for('login'))
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -83,8 +79,8 @@ def register():
         new_user = User(username=username, password=password)
         session.add(new_user)
         session.commit()
-
-        return 'Kayıt işlemi başarılı. Artık giriş yapabilirsiniz.'
+        print('Kayıt işlemi başarılı. Artık giriş yapabilirsiniz.')
+        return redirect(url_for('login'))
 
     return render_template('register.html')
 
@@ -92,8 +88,9 @@ def register():
 @login_required
 def get_posts():
     posts = session.query(Post).all()
-    result = [{'id': post.id, 'title': post.title, 'subreddit': post.subreddit} for post in posts]
-    return jsonify(result)
+    result = [{'id': post.id, 'title': post.title, 'subreddit': post.subreddit, 'url': post.url} for post in posts]
+    return render_template('posts.html', posts=result)
+
 
 @app.route('/crawl', methods=['GET'])
 @login_required
@@ -104,12 +101,12 @@ def crawl_posts():
         posts = subreddit.new(limit=15)
 
         for post in posts:
-            if isinstance(post.id, str):
-                new_post = Post(id=post.id, title=post.title, subreddit=subreddit_name)
+            if post.is_self:
+                new_post = Post(id=post.id, title=post.title, subreddit=subreddit_name, url=post.url) # <--- Add url here
                 session.merge(new_post)
 
         session.commit()
-        return 'Posts crawled and saved successfully'
+        return render_template('message.html', message='Posts crawled and saved successfully redirected to the post page')
     except Exception as e:
         session.rollback()
         return str(e), 500
@@ -122,13 +119,13 @@ def fetch_posts():
         posts = subreddit.new(limit=15)
 
         for post in posts:
-            existing_post = session.query(Post).filter_by(id=post.id).first()
-            if existing_post is None:
-                new_post = Post(id=post.id, title=post.title, subreddit=subreddit_name)
+            #existing_post = session.query(Post).filter_by(id=post.id).first()
+            if post.is_self:
+                new_post = Post(id=post.id, title=post.title, subreddit=subreddit_name, url=post.url) # <--- Add url here
                 session.add(new_post)
 
         session.commit()
-        print('Posts crawled and saved successfully')
+        
     except Exception as e:
         session.rollback()
         print(f"Error while fetching posts: {str(e)}")

@@ -22,7 +22,7 @@ class User(Base, UserMixin):
         self.set_password(password)
 
     def set_password(self, password):
-        self.password_hash = password
+        self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
@@ -35,7 +35,10 @@ class User(Base, UserMixin):
 
 class Post(Base):
     __tablename__ = 'posts'
+    
 
-    id = Column(String, primary_key=True)  # id'yi String olarak değiştirdim
-    title = Column(String)
-    subreddit = Column(String)
+    id = Column(String(50), primary_key=True)
+    title = Column(String(300))
+    subreddit = Column(String(50))
+    url = Column(String(500)) # <--- Add this line
+    

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Message</title>
+    <script>
+        setTimeout(function(){
+            window.location.href = "{{ url_for('get_posts') }}";
+        }, 2000);
+    </script>
+</head>
+<body>
+    <h3>{{ message }}</h3>
+</body>
+</html>
