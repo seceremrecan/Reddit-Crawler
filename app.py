@@ -7,6 +7,8 @@ from sqlalchemy.orm import sessionmaker
 from models import Base, Post, User
 import configparser
 from flask_login import current_user
+
+
 import time
 
 app = Flask(__name__)
@@ -97,9 +99,9 @@ def get_posts():
 @login_required
 def crawl_posts():
     try:
-        subreddit_name = 'python'
+        subreddit_name = 'technology'
         subreddit = reddit.subreddit(subreddit_name)
-        posts = subreddit.new(limit=10)
+        posts = subreddit.new(limit=15)
 
         for post in posts:
             if isinstance(post.id, str):
@@ -115,13 +117,15 @@ def crawl_posts():
 
 def fetch_posts():
     try:
-        subreddit_name = 'python'
+        subreddit_name = 'technology'
         subreddit = reddit.subreddit(subreddit_name)
-        posts = subreddit.new(limit=10)
+        posts = subreddit.new(limit=15)
 
         for post in posts:
-            new_post = Post(id=post.id, title=post.title, subreddit=subreddit_name)
-            session.add(new_post)
+            existing_post = session.query(Post).filter_by(id=post.id).first()
+            if existing_post is None:
+                new_post = Post(id=post.id, title=post.title, subreddit=subreddit_name)
+                session.add(new_post)
 
         session.commit()
         print('Posts crawled and saved successfully')
@@ -129,8 +133,12 @@ def fetch_posts():
         session.rollback()
         print(f"Error while fetching posts: {str(e)}")
 
-
-
+if __name__ == '__main__':
+    Base.metadata.create_all(engine)
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(fetch_posts, 'interval', minutes=1)
+    scheduler.start()
+    app.run(debug=True)
 
 
 scheduler = BackgroundScheduler()
@@ -139,4 +147,7 @@ scheduler.start()
 
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(fetch_posts, 'interval', minutes=1)
+    scheduler.start()
     app.run(debug=True)
