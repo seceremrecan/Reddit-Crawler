@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template, redirect, url_for, request
+from flask import Flask, jsonify,redirect, render_template, redirect, url_for, request
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin
 from apscheduler.schedulers.background import BackgroundScheduler
 from praw import Reddit
@@ -6,6 +6,8 @@ from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker
 from models import Base, Post, User
 import configparser
+from flask_login import current_user
+import time
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -35,11 +37,14 @@ session = Session()
 
 @login_manager.user_loader
 def load_user(user_id):
-    return session.query(User).get(user_id)
+    return session.get(User, user_id)
+
 
 @app.route('/', methods=['GET'])
 def home():
+    
     return 'Welcome to Reddit Crawler API'
+    
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -97,15 +102,16 @@ def crawl_posts():
         posts = subreddit.new(limit=10)
 
         for post in posts:
-            if session.query(Post).get(post.id) is None:
+            if isinstance(post.id, str):
                 new_post = Post(id=post.id, title=post.title, subreddit=subreddit_name)
-                session.add(new_post)
+                session.merge(new_post)
 
         session.commit()
         return 'Posts crawled and saved successfully'
     except Exception as e:
         session.rollback()
         return str(e), 500
+
 
 def fetch_posts():
     try:
@@ -122,6 +128,10 @@ def fetch_posts():
     except Exception as e:
         session.rollback()
         print(f"Error while fetching posts: {str(e)}")
+
+
+
+
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(fetch_posts, 'interval', minutes=1)

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import validates
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -9,9 +9,13 @@ Base = declarative_base()
 class User(Base, UserMixin):
     __tablename__ = 'users'
 
+    @property
+    def is_active(self):
+        return True
+    
     id = Column(Integer, primary_key=True)
     username = Column(String(50), unique=True, nullable=False)
-    password_hash = Column(String(100), nullable=False)
+    password_hash = Column(String(150), nullable=False)
 
     def __init__(self, username, password):
         self.username = username
@@ -29,16 +33,9 @@ class User(Base, UserMixin):
             raise ValueError('Username is required.')
         return username
 
-
-
 class Post(Base):
     __tablename__ = 'posts'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(String, primary_key=True)  # id'yi String olarak değiştirdim
     title = Column(String)
     subreddit = Column(String)
-
-    def __init__(self, id, title, subreddit):
-        self.id = id
-        self.title = title
-        self.subreddit = subreddit
