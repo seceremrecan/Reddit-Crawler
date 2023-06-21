@@ -106,7 +106,7 @@ def get_posts():
 @login_required
 def crawl_posts():
     try:
-        subreddit_name = 'technology'
+        subreddit_name = 'tennis'
         subreddit = reddit.subreddit(subreddit_name)
         posts = subreddit.new(limit=15)
 
@@ -124,7 +124,7 @@ def crawl_posts():
 
 def fetch_posts():
     try:
-        subreddit_name = 'technology'
+        subreddit_name = 'tennis'
         subreddit = reddit.subreddit(subreddit_name)
         posts = subreddit.new(limit=15)
 
@@ -139,14 +139,6 @@ def fetch_posts():
     except Exception as e:
         session.rollback()
         print(f"Error while fetching posts: {str(e)}")
-
-if __name__ == '__main__':
-    Base.metadata.create_all(engine)
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(fetch_posts, 'interval', minutes=1)
-    scheduler.start()
-    app.run(debug=True)
-
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(fetch_posts, 'interval', minutes=1)
