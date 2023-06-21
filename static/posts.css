@@ -1,0 +1,35 @@
+body{
+    padding: 15px;
+    background-color: #84AFBE!important;
+}
+
+.container{
+  background-color: white;
+  border-radius: 30px;
+  padding-left:0rem !important;
+  padding-right: 0rem !important;
+}
+
+.navbar{
+  padding: 0% 5% 0% 5%;
+  border-top-left-radius:30px;
+  border-top-right-radius: 30px;
+}
+
+
+
+.custom-card {
+    background-color: #000;
+}
+
+.custom-card a {
+    color: #000; /* Red color for the text */
+    text-decoration: none; /* This removes the underline */
+}
+
+.arrow {
+    color: #000;
+}
+
+
+

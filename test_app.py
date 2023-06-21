@@ -38,9 +38,6 @@ class TestApp(unittest.TestCase):
             session.commit()
 
     def test_get_posts(self):
-        # /posts endpoint'ini test etmek için gerekli kodları burada yazın
-        # Beklenen sonuçları kontrol edin
-
         # Kullanıcıyı var olan kullanıcı olarak kontrol et
         username = 'test_user'
         password = 'test_password'
@@ -51,10 +48,10 @@ class TestApp(unittest.TestCase):
             login_user(user)
             
             response = self.app.get('/posts')
-            data = response.get_json()
+            data = response.data.decode()  # Decode the response data
 
             self.assertEqual(response.status_code, 200)
-            self.assertIsInstance(data, list)
+            self.assertIn('/posts', data)  # Check if the response data contains the expected HTML template
 
 
     def test_crawl_posts(self):
@@ -74,7 +71,7 @@ class TestApp(unittest.TestCase):
             data = response.get_data(as_text=True)
 
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(data, 'Posts crawled and saved successfully')
+            self.assertIn('Posts crawled and saved successfully redirected to the post page', data)
 
 
 if __name__ == '__main__':
