@@ -1,30 +1,17 @@
-# # Base image
-# FROM python:3.9
+# Base image olarak Python 3.8 kullanalım
+FROM python:3.8
 
-# # Set working directory
-# WORKDIR /app
-
-# # Install dependencies
-# COPY requirements.txt .
-# RUN pip install --no-cache-dir -r requirements.txt
-
-# # Copy project files
-# COPY . .
-
-# # Run the application
-# CMD ["python", "app.py"]
-
-# Base image
-FROM python:3.9
-
-# Proje dosyalarını çalışma dizinine kopyala
-COPY . /app
-
-# Çalışma dizini olarak /app'i belirt
+# Çalışma dizinini /app olarak ayarlayalım
 WORKDIR /app
 
-# Gerekli paketleri yükle
-RUN pip install -r requirements.txt
+# Gerekli paketleri yüklemek için önce requirements.txt dosyasını kopyalayalım
+COPY requirements.txt .
 
-# Uygulamayı çalıştır
+# Paketleri yükleyelim
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Proje dosyalarını kopyalayalım
+COPY . .
+
+# Flask uygulamasını çalıştıralım
 CMD ["python", "app.py"]

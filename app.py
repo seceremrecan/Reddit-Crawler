@@ -84,6 +84,16 @@ def register():
 
     return render_template('register.html')
 
+@app.route('/posts/<post_id>', methods=['GET'])
+@login_required
+def view_post(post_id):
+    post = session.query(Post).get(post_id)
+    if post:
+        return redirect(post.url)
+    else:
+        flash('Post not found')
+        return redirect(url_for('get_posts'))
+    
 @app.route('/posts', methods=['GET'])
 @login_required
 def get_posts():

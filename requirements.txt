@@ -1,2 +1,6 @@
-Flask==2.0.1
-SQLAlchemy==1.4.22
+flask
+flask-login
+praw
+apscheduler
+sqlalchemy
+psycopg2-binary
