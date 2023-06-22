@@ -1,4 +1,4 @@
-from flask import Flask, jsonify,redirect, render_template, redirect, url_for, request
+from flask import Flask, jsonify, redirect, render_template, redirect, url_for, request
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin
 from apscheduler.schedulers.background import BackgroundScheduler
 from praw import Reddit
@@ -9,6 +9,7 @@ import configparser
 from flask_login import current_user
 import time
 from flask import flash
+import os  # <-- Import os module
 
 
 app = Flask(__name__)
@@ -28,7 +29,14 @@ reddit = Reddit(client_id=config['reddit']['client_id'],
                 user_agent='defanceProject')
 
 # PostgreSQL veritabanı bağlantısı oluşturma
-DATABASE_URL = config['database']['url']
+db_host = os.getenv("DB_HOST", config['database']['host'])
+db_user = os.getenv("DB_USER", config['database']['user'])
+db_password = os.getenv("DB_PASSWORD", config['database']['password'])
+db_name = os.getenv("DB_NAME", config['database']['database'])
+
+DATABASE_URL = f"postgresql://{db_user}:{db_password}@{db_host}:5432/{db_name}"
+engine = create_engine(DATABASE_URL)
+
 
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
@@ -149,4 +157,4 @@ if __name__ == '__main__':
     scheduler = BackgroundScheduler()
     scheduler.add_job(fetch_posts, 'interval', minutes=1)
     scheduler.start()
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

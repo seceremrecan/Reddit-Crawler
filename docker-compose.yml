@@ -1,0 +1,22 @@
+version: '3.7'
+services:
+  web:
+    build: .
+    command: python app.py
+    volumes:
+      - .:/app
+    ports:
+      - 5000:5000
+    environment:
+      - DB_HOST=db
+      - DB_USER=postgres
+      - DB_PASSWORD=258258258
+      - DB_NAME=brandefance
+    depends_on:
+      - db
+  db:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=258258258
+      - POSTGRES_DB=brandefance
