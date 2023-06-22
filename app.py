@@ -9,7 +9,7 @@ import configparser
 from flask_login import current_user
 import time
 from flask import flash
-import os  # <-- Import os module
+import os  
 
 
 app = Flask(__name__)
@@ -137,7 +137,7 @@ def fetch_posts():
         posts = subreddit.new(limit=15)
 
         for post in posts:
-            #existing_post = session.query(Post).filter_by(id=post.id).first()
+            
             if post.is_self:
                 new_post = Post(id=post.id, title=post.title, subreddit=subreddit_name, url=post.url) # <--- Add url here
                 session.add(new_post)

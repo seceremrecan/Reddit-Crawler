@@ -27,7 +27,7 @@ body{
     padding: 0 16px;
     height: 44px;
     text-align: center;
-    box-sizing: border-box;/*hepsini eşitler uzunluk olarak*/
+    box-sizing: border-box;
     border: none;
 }
 .txt{
@@ -47,12 +47,12 @@ body{
 
 }
 .signup-btn:hover{
-    transform: scale(0.96);/*fareyi butona götürünce küçülme efekti*/
+    transform: scale(0.96);
     background: #fff;
     color: #538fef;
 }
 .signup-form a{
-    text-decoration: none;/*altındaki çizgiyi kaldırır*/
+    text-decoration: none;
     color: #fff;
     font-size: 14px;
     padding: 10px;
@@ -60,7 +60,7 @@ body{
 
 }
 .signup-form label{
-    text-decoration: none;/*altındaki çizgiyi kaldırır*/
+    text-decoration: none;
     color: #b29a22;
     font-size: 14px;
     padding: 10px;
@@ -68,7 +68,7 @@ body{
 
 }
 .signup-form p{
-    text-decoration: none;/*altındaki çizgiyi kaldırır*/
+    text-decoration: none;
     color: #b29a22;
     font-size: 14px;
     padding: 10px;

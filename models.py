@@ -40,5 +40,5 @@ class Post(Base):
     id = Column(String(50), primary_key=True)
     title = Column(String(300))
     subreddit = Column(String(50))
-    url = Column(String(500)) # <--- Add this line
+    url = Column(String(500)) 
     

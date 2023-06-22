@@ -10,26 +10,26 @@ class TestApp(unittest.TestCase):
         self.app = app.test_client()
         self.app.testing = True
 
-        # Kullanıcıyı var olan kullanıcı olarak kontrol et
+       
         username = 'test_user'
         password = 'test_password'
         user = session.query(User).filter_by(username=username).first()
 
         if user is None:
-            # Kullanıcı yoksa, yeni bir kullanıcı oluştur ve ekleyin
+            
             user = User(username=username, password=password)
             session.add(user)
             session.commit()
 
-        # Flask uygulama bağlamını oluşturun
+        
         with app.test_request_context('/'):   # test_request_context metodu ile bir HTTP isteği bağlamı oluşturuldu
-            # Kullanıcıyı oturum açmış olarak işaretleyin
+           
             login_user(user)
 
 
 
     def tearDown(self):
-        # Kullanıcıyı veritabanından sil
+        
         username = 'test_user'
         user = session.query(User).filter_by(username=username).first()
 
@@ -38,13 +38,13 @@ class TestApp(unittest.TestCase):
             session.commit()
 
     def test_get_posts(self):
-        # Kullanıcıyı var olan kullanıcı olarak kontrol et
+       
         username = 'test_user'
         password = 'test_password'
         user = session.query(User).filter_by(username=username).first()
 
         with app.test_request_context('/'):
-            # Kullanıcıyı oturum açmış olarak işaretleyin
+            
             login_user(user)
             
             response = self.app.get('/posts')
@@ -55,16 +55,13 @@ class TestApp(unittest.TestCase):
 
 
     def test_crawl_posts(self):
-        # /crawl endpoint'ini test etmek için gerekli kodları burada yazın
-        # Beklenen sonuçları kontrol edin
-
-        # Kullanıcıyı var olan kullanıcı olarak kontrol et
+        
         username = 'test_user'
         password = 'test_password'
         user = session.query(User).filter_by(username=username).first()
 
         with app.test_request_context('/'):
-            # Kullanıcıyı oturum açmış olarak işaretleyin
+            
             login_user(user)
             
             response = self.app.get('/crawl')

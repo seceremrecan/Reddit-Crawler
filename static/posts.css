@@ -23,8 +23,8 @@ body{
 }
 
 .custom-card a {
-    color: #000; /* Red color for the text */
-    text-decoration: none; /* This removes the underline */
+    color: #000; 
+    text-decoration: none; 
 }
 
 .arrow {
