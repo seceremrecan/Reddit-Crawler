@@ -1,16 +1,15 @@
-from flask import Flask, jsonify, redirect, render_template, redirect, url_for, request
-from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin
-from apscheduler.schedulers.background import BackgroundScheduler
-from praw import Reddit
+from flask import Flask, jsonify, redirect, render_template, redirect, url_for, request, flash
+from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker
 from models import Base, Post, User
 import configparser
 from flask_login import current_user
 import time
-from flask import flash
-import os  
+import os
 
+from playwright.sync_api import sync_playwright
+from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
@@ -21,13 +20,6 @@ login_manager.init_app(app)
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-# Reddit API'ye bağlanma
-reddit = Reddit(client_id=config['reddit']['client_id'],
-                client_secret=config['reddit']['client_secret'],
-                username=config['reddit']['username'],
-                password=config['reddit']['password'],
-                user_agent='defanceProject')
-
 # PostgreSQL veritabanı bağlantısı oluşturma
 db_host = os.getenv("DB_HOST", config['database']['host'])
 db_user = os.getenv("DB_USER", config['database']['user'])
@@ -36,7 +28,6 @@ db_name = os.getenv("DB_NAME", config['database']['database'])
 
 DATABASE_URL = f"postgresql://{db_user}:{db_password}@{db_host}:5432/{db_name}"
 engine = create_engine(DATABASE_URL)
-
 
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
@@ -51,7 +42,6 @@ def load_user(user_id):
 def home():
     print('Welcome to Reddit Crawler API')
     return redirect(url_for('login'))
-    
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -74,6 +64,7 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -101,7 +92,7 @@ def view_post(post_id):
     else:
         flash('Post not found')
         return redirect(url_for('get_posts'))
-    
+
 @app.route('/posts', methods=['GET'])
 @login_required
 def get_posts():
@@ -110,51 +101,43 @@ def get_posts():
     return render_template('posts.html', posts=result)
 
 
+
 @app.route('/crawl', methods=['GET'])
 @login_required
 def crawl_posts():
     try:
-        subreddit_name = 'tennis'
-        subreddit = reddit.subreddit(subreddit_name)
-        posts = subreddit.new(limit=15)
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch()
+            page = browser.new_page()
 
-        for post in posts:
-            if post.is_self:
-                new_post = Post(id=post.id, title=post.title, subreddit=subreddit_name, url=post.url) # <--- Add url here
-                session.merge(new_post)
+            subreddit_name = 'tennis'
+            page.goto(f'https://www.reddit.com/r/{subreddit_name}/new/')
+            posts = page.query_selector_all('.Post')
 
-        session.commit()
+            for post in posts:
+                id = post.get_attribute('id')
+                title_element = post.query_selector('.Post-title')
+                if title_element is not None:
+                    title = title_element.inner_text()
+                    url_element = post.query_selector('.Post-title a')
+                    if url_element is not None:
+                        url = url_element.get_attribute('href')
+                        new_post = Post(id=id, title=title, subreddit=subreddit_name, url=url)
+                        session.add(new_post)
+
+            session.commit()
+
+            browser.close()
+
         return render_template('message.html', message='Posts crawled and saved successfully redirected to the post page')
     except Exception as e:
         session.rollback()
         return str(e), 500
 
-
-def fetch_posts():
-    try:
-        subreddit_name = 'tennis'
-        subreddit = reddit.subreddit(subreddit_name)
-        posts = subreddit.new(limit=15)
-
-        for post in posts:
-            
-            if post.is_self:
-                new_post = Post(id=post.id, title=post.title, subreddit=subreddit_name, url=post.url) # <--- Add url here
-                session.add(new_post)
-
-        session.commit()
-        
-    except Exception as e:
-        session.rollback()
-        print(f"Error while fetching posts: {str(e)}")
-
-scheduler = BackgroundScheduler()
-scheduler.add_job(fetch_posts, 'interval', minutes=1)
-scheduler.start()
-
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
     scheduler = BackgroundScheduler()
-    scheduler.add_job(fetch_posts, 'interval', minutes=1)
+    scheduler.add_job(crawl_posts, 'interval', minutes=1)
     scheduler.start()
     app.run(host='0.0.0.0', port=5000, debug=True)
+

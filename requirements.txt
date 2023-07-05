@@ -1,6 +1,6 @@
 flask
 flask-login
-praw
+playwright
 apscheduler
 sqlalchemy
 psycopg2-binary
