@@ -110,20 +110,35 @@ def crawl_posts():
             browser = playwright.chromium.launch()
             page = browser.new_page()
 
-            subreddit_name = 'tennis'
+            subreddit_name = 'technology'
             page.goto(f'https://www.reddit.com/r/{subreddit_name}')
             posts = page.query_selector_all('.Post')
+            
+            session.query(Post).delete()
+            session.commit()
+            
+            print('Veritabanı temizlendi.')
 
             for post in posts:
-                id = post.get_attribute('id')
-                title_element = post.query_selector('.Post-title')
-                if title_element is not None:
-                    title = title_element.inner_text()
-                    url_element = post.query_selector('.Post-title a')
-                    if url_element is not None:
-                        url = url_element.get_attribute('href')
-                        new_post = Post(id=id, title=title, subreddit=subreddit_name, url=url)
-                        session.add(new_post)
+                ids = post.get_attribute('id')
+                url_elements = post.query_selector('a')
+                
+                # url_element = post.query_selector('div:nth-child(2)')
+                # url_elements = url_element.query_selector('div:nth-child(3)')
+                # url_elementss = url_elements.query_selector('div:nth-child(1)')
+                # last_url_elements = url_elementss.query_selector('a')
+                if url_elements is not None:
+                    url = url_elements.get_attribute('href')
+                    new_post = Post(id=ids, subreddit=subreddit_name, url=url)
+                    session.add(new_post)
+                # title_element = post.query_selector('.Post-title')
+                # if title_element is not None:
+                #     title = title_element.inner_text()
+                #     url_element = post.query_selector('.Post-title a')
+                #     if url_element is not None:
+                #         url = url_element.get_attribute('href')
+                #         new_post = Post(id=id, title=title, subreddit=subreddit_name, url=url)
+                #         session.add(new_post)
 
             session.commit()
 

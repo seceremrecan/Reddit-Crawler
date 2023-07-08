@@ -36,7 +36,6 @@ class User(Base, UserMixin):
 class Post(Base):
     __tablename__ = 'posts'
     
-
     id = Column(String(50), primary_key=True)
     title = Column(String(300))
     subreddit = Column(String(50))
