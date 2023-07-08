@@ -20,7 +20,7 @@ login_manager.init_app(app)
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-# PostgreSQL veritabanı bağlantısı oluşturma
+
 db_host = os.getenv("DB_HOST", config['database']['host'])
 db_user = os.getenv("DB_USER", config['database']['user'])
 db_password = os.getenv("DB_PASSWORD", config['database']['password'])
@@ -111,7 +111,7 @@ def crawl_posts():
             page = browser.new_page()
 
             subreddit_name = 'tennis'
-            page.goto(f'https://www.reddit.com/r/{subreddit_name}/new/')
+            page.goto(f'https://www.reddit.com/r/{subreddit_name}')
             posts = page.query_selector_all('.Post')
 
             for post in posts:
@@ -132,7 +132,9 @@ def crawl_posts():
         return render_template('message.html', message='Posts crawled and saved successfully redirected to the post page')
     except Exception as e:
         session.rollback()
+        print('Hata:', str(e))
         return str(e), 500
+
 
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
@@ -140,4 +142,3 @@ if __name__ == '__main__':
     scheduler.add_job(crawl_posts, 'interval', minutes=1)
     scheduler.start()
     app.run(host='0.0.0.0', port=5000, debug=True)
-
