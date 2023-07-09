@@ -45,19 +45,22 @@
     </div>
     
    
-<div class="container mt-5">
-    <div class="row">
-        {% for post in posts %}
-        <div class="col-md-4 mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title"><a href="{{ url_for('view_post', post_id=post.url) }}" target="_blank">{{ post.id }}</a></h5>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
+    <div class="container mt-5">
+      <div class="row">
+          {% for post in posts %}
+          <div class="col-md-4 mb-3">
+              <div class="card">
+                  <div class="card-body">
+                      <h5 class="card-title"><a href="{{ post.url }}" target="_blank">{{ post.title}}</a></h5>
+                  </div>
+              </div>
+          </div>
+          {% endfor %}
+      </div>
+  </div>
+  
+
+
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
