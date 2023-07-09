@@ -1,14 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Message</title>
+    <title>Posts Crawled and Saved</title>
     <script>
-        setTimeout(function(){
+        function showAlert() {
+            alert("Posts crawled and saved successfully redirected to the post page");
+            redirectToPage();
+        }
+
+        function redirectToPage() {
             window.location.href = "{{ url_for('get_posts') }}";
-        }, 2000);
+        }
     </script>
 </head>
 <body>
-    <h3>{{ message }}</h3>
+    <script>
+        window.onload = showAlert;
+    </script>
 </body>
 </html>
+
+

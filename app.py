@@ -18,7 +18,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read('.env')
 
 
 db_host = os.getenv("DB_HOST", config['database']['host'])
