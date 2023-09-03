@@ -54,7 +54,7 @@ or
 3. Run the application using Docker-compose:
 
    ```shell
-   docker-compose up
+   docker-compose up --build
    
   -> This command will start the services defined in the docker-compose.yml file (web and db). The application will be running at http://localhost:5000.
 
